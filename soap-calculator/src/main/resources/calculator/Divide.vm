@@ -1,0 +1,4 @@
+<tem:Divide xmlns:tem="http://tempuri.org/">
+    <tem:intA>30</tem:intA>
+    <tem:intB>6</tem:intB>
+</tem:Divide>

@@ -1,0 +1,4 @@
+<tem:Multiply xmlns:tem="http://tempuri.org/">
+    <tem:intA>5</tem:intA>
+    <tem:intB>6</tem:intB>
+</tem:Multiply>
