@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd        http://camel.apache.org/schema/spring       https://camel.apache.org/schema/spring/camel-spring-2.23.3.xsd">
+  
+  <bean id="aggrgate" class="org.mycompany.HttpAggregationStrategy"/>
+  
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring" streamCache="true" useMDCLogging="true">
+    
+    <dataFormats>
+		<json id="jsonref" library="Jackson"/>
+	</dataFormats>
+        <route id="simple-route" streamCache="true">
+           <from id="_from1" uri="jetty:http://0.0.0.0:9090/api/posts?httpMethodRestrict=POST&amp;enableCORS=true"/>
+			<removeHeaders pattern="*" />
+            <convertBodyTo type="String" />				
+			<unmarshal ref="jsonref"/>
+            <split strategyRef="aggrgate" streaming="true">
+				<simple>${body['values']}</simple>
+				<setBody><simple>{"value":${body}}</simple></setBody>
+				<unmarshal ref="jsonref" />				
+				<log message="${body}" />
+					<setHeader headerName="CamelHttpMethod">
+        			<constant>GET</constant>
+   			 	</setHeader>
+                 <toD uri="https4://jsonplaceholder.typicode.com/posts/${body[value]}?bridgeEndpoint=true&amp;throwExceptionOnFailure=false"/>
+                 <convertBodyTo type="String" />                        				
+		    </split>
+        </route>       
+    </camelContext>
+</beans>
