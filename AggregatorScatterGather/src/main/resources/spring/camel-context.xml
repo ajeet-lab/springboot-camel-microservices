@@ -74,6 +74,51 @@
 				uri="https4://jsonplaceholder.typicode.com/posts/3?bridgeEndpoint=true&amp;throwExceptionOnFailure=false" />
 			<convertBodyTo type="String" />
 		</route>
+		
+		
+		
+		<route>
+			<from
+				uri="jetty:http://0.0.0.0:9090/api/posts3?httpMethodRestrict=GET&amp;enableCORS=true" />
+			<removeHeaders pattern="*" />
+			<!--<convertBodyTo type="String" />
+			<unmarshal ref="jsonref" />-->
+			<recipientList strategyRef="aggrgate" parallelProcessing="true">
+				<constant>direct:endpoint4,direct:endpoint5,direct:endpoint6</constant>
+			</recipientList>
+			<log message="Aggregated response: ${body}" />
+		</route>
+
+		<route>
+			<from uri="direct:endpoint4" />
+			<setHeader headerName="CamelHttpMethod">
+				<constant>GET</constant>
+			</setHeader>
+			<toD
+				uri="https4://jsonplaceholder.typicode.com/posts/4?bridgeEndpoint=true&amp;throwExceptionOnFailure=false" />
+			<convertBodyTo type="String" />
+		</route>
+		
+		<route>
+			<from uri="direct:endpoint5" />
+			<setHeader headerName="CamelHttpMethod">
+				<constant>GET</constant>
+			</setHeader>
+			<toD
+				uri="https4://jsonplaceholder.typicode.com/posts/5?bridgeEndpoint=true&amp;throwExceptionOnFailure=false" />
+			<convertBodyTo type="String" />
+		</route>
+		
+		<route>
+			<from uri="direct:endpoint6" />
+			<setHeader headerName="CamelHttpMethod">
+				<constant>GET</constant>
+			</setHeader>
+			<toD
+				uri="https4://jsonplaceholder.typicode.com/posts/6?bridgeEndpoint=true&amp;throwExceptionOnFailure=false" />
+			<convertBodyTo type="String" />
+		</route>
+		
 
 	</camelContext>
 </beans>
