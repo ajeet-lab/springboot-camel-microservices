@@ -33,7 +33,7 @@
 
 		<route>
 			<from
-				uri="jetty:http://0.0.0.0:9090/api/posts2?httpMethodRestrict=GET&amp;enableCORS=true" />
+				uri="jetty:http://0.0.0.0:9090/api/posts2?httpMethodRestrict=POST&amp;enableCORS=true" />
 			<removeHeaders pattern="*" />
 			<!--<convertBodyTo type="String" />
 			<unmarshal ref="jsonref" />-->
@@ -79,7 +79,7 @@
 		
 		<route>
 			<from
-				uri="jetty:http://0.0.0.0:9090/api/posts3?httpMethodRestrict=GET&amp;enableCORS=true" />
+				uri="jetty:http://0.0.0.0:9090/api/posts3?httpMethodRestrict=POST&amp;enableCORS=true" />
 			<removeHeaders pattern="*" />
 			<!--<convertBodyTo type="String" />
 			<unmarshal ref="jsonref" />-->
