@@ -3,29 +3,10 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
 						http://camel.apache.org/schema/spring https://camel.apache.org/schema/spring/camel-spring-2.23.3.xsd">
-    <bean id="dataSource"
-          class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName"
-                  value="com.mysql.cj.jdbc.Driver" />
-        <property name="url"
-                  value="jdbc:mysql://localhost:3306/tata_capital" />
-        <property name="username" value="root" />
-        <property name="password" value="root" />
-    </bean>
-    <bean id="sqlComponent"
-          class="org.apache.camel.component.sql.SqlComponent">
-        <property name="dataSource" ref="dataSource" />
-    </bean>
+
     <bean id="aggrgate" class="com.aggregate.CustomAggregationStrategy" />
     <bean id="utils" class="com.aggregate.Utils" />
     <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
-        <propertyPlaceholder location="sql.properties" id="sqlprops" />
-        <dataFormats>
-            <json id="jsonref" library="Jackson" />
-        </dataFormats>
-
-
-        <!-- Payload { "values": [{"products":5},{"quotes":"3"},{"posts":"5"}, {"comments":2}]}  -->
         <route>
             <from uri="jetty:http://0.0.0.0:9000/api/posts?httpMethodRestrict=POST&amp;enableCORS=true" />
             <doTry>
@@ -73,17 +54,118 @@
             </doTry>
         </route>
 
-
+        <route>
+            <!--https://dummyjson.com/products-->
+            <!--https://fakestoreapi.com/products-->
+            <!--jsonplaceholder.typicode.com/posts-->
+            <from uri="jetty:http://0.0.0.0:9000/api/posts2?httpMethodRestrict=POST&amp;enableCORS=true" />
+            <removeHeaders pattern="*" />
+            <recipientList strategyRef="aggrgate" parallelProcessing="true">
+                <constant>direct:endpoint1,direct:endpoint2,direct:endpoint3,direct:endpoint4</constant>
+            </recipientList>
+            <convertBodyTo type="String" />
+            <log message="Aggregated response: ${body}" />
+        </route>
 
         <route>
-            <from uri="jetty:http://0.0.0.0:9000/api/loans?httpMethodRestrict=POST&amp;enableCORS=true" />
+            <from uri="direct:endpoint1" />
+            <doTry>
+                <setHeader name="CamelHttpMethod">
+                    <constant>GET</constant>
+                </setHeader>
+                <toD uri="https://jsonplaceholder.typicode.com/posts/1?bridgeEndpoint=true" />
+                <convertBodyTo type="String" />
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <setHeader name="Content-Type">
+                        <simple>application/json</simple>
+                    </setHeader>
+                    <setBody>
+                        <simple>{"errorMessage":"${exception.message}"}</simple>
+                    </setBody>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route>
+            <from uri="direct:endpoint2" />
+            <doTry>
+                <setHeader name="CamelHttpMethod">
+                    <constant>GET</constant>
+                </setHeader>
+                <toD uri="https://fakestoreapi.com/products/1?bridgeEndpoint=true" />
+                <convertBodyTo type="String" />
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <setHeader name="Content-Type">
+                        <simple>application/json</simple>
+                    </setHeader>
+                    <setBody>
+                        <simple>{"errorMessage":"${exception.message}"}</simple>
+                    </setBody>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route>
+            <from uri="direct:endpoint3" />
+            <doTry>
+                <setHeader name="CamelHttpMethod">
+                    <constant>GET</constant>
+                </setHeader>
+                <toD uri="https://dummyjson.com/products/3?bridgeEndpoint=true" />
+                <convertBodyTo type="String" />
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <setHeader name="Content-Type">
+                        <simple>application/json</simple>
+                    </setHeader>
+                    <setBody>
+                        <simple>{"errorMessage":"${exception.message}"}</simple>
+                    </setBody>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route>
+            <from uri="direct:endpoint4" />
+
+            <doTry>
+                <setHeader name="CamelHttpMethod">
+                    <constant>GET</constant>
+                </setHeader>
+                <setHeader name="CamelHttpConnectionTimeout">
+                    <constant>5000</constant> <!-- 5 seconds connection timeout -->
+                </setHeader>
+                <!--<toD
+                        uri="https://httpstat.us/504?sleep=6000" />-->
+                <toD
+                        uri="https://jsonplaceholder.typicode.com/posts/3?bridgeEndpoint=true" />
+                <convertBodyTo type="String" />
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <setHeader name="Content-Type">
+                        <simple>application/json</simple>
+                    </setHeader>
+                    <setBody>
+                        <simple>{"errorMessage":"${exception.message}"}</simple>
+                    </setBody>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route>
+            <from uri="jetty:http://0.0.0.0:9000/api/loan/getSingleLoans?httpMethodRestrict=POST&amp;enableCORS=true" />
             <removeHeaders pattern="*" />
             <convertBodyTo type="String" />
             <unmarshal>
                 <json library="Jackson"/>
             </unmarshal>
+            
+            <log message="After unmarshalling =====> ${body}" />
             <split strategyRef="aggrgate" parallelProcessing="true">
                 <simple>${body}</simple>
+                <log message="===========> ${body}" />
                 <doTry>
                     <setBody>
                         <simple>{
@@ -111,6 +193,31 @@
                 </doCatch>
             </doTry>
             </split>
+            <setBody>
+                <simple>[${body}]</simple>
+            </setBody>
+        </route>
+
+
+        <route>
+            <from uri="jetty:http://0.0.0.0:9000/api/loans/getall?httpMethodRestrict=GET&amp;enableCORS=true" />
+            <removeHeaders pattern="*" />
+            <doTry>
+                <setHeader name="CamelHttpMethod">
+                    <simple>GET</simple>
+                </setHeader>
+                <toD uri="http://localhost:3000/api/loan/getall?bridgeEndpoint=true" />
+                <convertBodyTo type="String" />
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <setHeader name="Content-Type">
+                        <simple>application/json</simple>
+                    </setHeader>
+                    <setBody>
+                        <simple>{"errorMessage":"${exception.message}"}</simple>
+                    </setBody>
+                </doCatch>
+            </doTry>
         </route>
 
     </camelContext>
