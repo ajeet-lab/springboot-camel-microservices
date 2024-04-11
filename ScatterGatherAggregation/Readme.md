@@ -52,3 +52,7 @@
         "tenantId": 505,
         "considerLPPComputation": "N"
     }
+
+
+
+<b>Api IV:</b> http://0.0.0.0:9000/api/loans/getall </br>
