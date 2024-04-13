@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+						http://camel.apache.org/schema/spring https://camel.apache.org/schema/spring/camel-spring-2.23.3.xsd">
+
+
+	<!--DATABASE CONNECTIVITY-->
+	<!--<bean id="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName"
+			value="com.mysql.cj.jdbc.Driver" />
+		<property name="url"
+			value="jdbc:mysql://localhost:3306/tata_capital" />
+		<property name="username" value="root" />
+		<property name="password" value="root" />
+	</bean>
+	<bean id="sqlComponent"
+		class="org.apache.camel.component.sql.SqlComponent">
+		<property name="dataSource" ref="dataSource" />
+	</bean> -->
+
+
+
+	<camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+		<propertyPlaceholder location="sql.properties" id="datasource"/>
+
+
+		<!--START CREATE LOANS-->
+		<route>
+			<from uri="servlet://api/tatacapital/loans?httpMethodRestrict=POST" />
+			<convertBodyTo type="String" />
+			<unmarshal><json library="Jackson" /></unmarshal>
+			<log message="After marshling ${body}" />
+			<to uri="sql:{{sql.insertUsers}}" />
+			<marshal><json library="Jackson" /></marshal>
+			<log message="Data inserted successfully" />
+		</route>
+		<!--END CREATE LOANS-->
+
+
+		<!-- START GET ALL DATA FROM DATABASE-->
+		<route>	
+			<from uri="jetty:http://localhost:3000/api/tatacapital/loans?httpMethodRestrict=GET&amp;enableCORS=true" />
+			<to uri="sql:{{sql.getAllUsers}}" />
+			<marshal><json library="Jackson" /></marshal>
+		</route>
+		<!--END GET ALL DATA FROM DATABASE-->
+		
+		<!--GET SINGLE DATA FROM DATABASE-->
+		<route>	
+			<from uri="servlet://api/tatacapital/loans/{id}?httpMethodRestrict=GET" />
+			<setHeader name="id">
+				<simple>${header.CamelHttpPath.split("/")[4]}</simple>
+			</setHeader>
+			<to uri="sql:{{sql.getSingleUser}}" />
+			<marshal><json library="Jackson" /></marshal>
+		</route>
+		<!--END GET SINGLE DATA FROM DATABASE-->
+
+		<!--START UPDATE DATA FROM DATABASE-->
+		<route>
+			<from uri="servlet://api/tatacapital/loans/{id}?httpMethodRestrict=PUT" />
+			<setHeader name="id">
+				<simple>${header.CamelHttpPath.split("/")[4]}</simple>
+			</setHeader>
+			<convertBodyTo type="String" />
+			<unmarshal><json library="Jackson" /></unmarshal>
+			<log message="After marshling ${body}" />
+			<to uri="sql:{{sql.update}}" />
+			<marshal><json library="Jackson" /></marshal>
+			<log message="Data updated successfully" />
+		</route>
+		<!--END UPDATE DATA FROM DATABASE-->
+	</camelContext>
+
+</beans>
