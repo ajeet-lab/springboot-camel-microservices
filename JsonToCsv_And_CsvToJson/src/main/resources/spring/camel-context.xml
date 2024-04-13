@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	https://www.springframework.org/schema/beans/spring-beans.xsd
+	http://camel.apache.org/schema/spring
+	https://camel.apache.org/schema/spring/camel-spring-2.23.3.xsd">
+
+
+    <bean id="jsonToCsv2" class="com.json.csv.User"/>
+
+
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+
+        <!-- START CREATE JSON TO CSV ✅ -->
+        <route>
+            <from uri="jetty:http://localhost:9000/api/jsontocsv?httpMethodRestrict=POST"/>
+            <convertBodyTo type="String" />
+            <doTry>
+                <unmarshal >
+                    <json library="Jackson" unmarshalType="com.json.csv.User" useList="true" />
+                </unmarshal>
+                <log message="Afer unmarshling ====> ${body}" />
+                <marshal>
+                    <bindy type="Csv" classType="com.json.csv.User" />
+                </marshal>
+                <setHeader name="CamelFileName">
+                    <simple>output_${date:now:yyyy-MM-dd-HH-mm-ss}.csv</simple>
+                </setHeader>
+                <to uri="file:work/output"/>
+                <setBody>
+                    <simple>{"isSuccess":true, "message":"Successfully created CSV"}</simple>
+                </setBody>
+
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <setHeader name="Content-Type">
+                        <simple>application/json</simple>
+                    </setHeader>
+                    <setBody>
+                       <simple>{"isSuccess":false, "message":"${exception.message}", , "staceTrack": "exception"}</simple>
+                    </setBody>
+                </doCatch>
+            </doTry>
+        </route>
+        <!-- END CREATE JSON TO CSV-->
+
+       <!-- START CREATE CSV TO JSON ✅-->
+        <route>
+            <from uri="file:work/output?fileName=output_2024-04-13-20-28-22.csv&amp;noop=true"/>
+            <log message="data received from file" />
+            <doTry>
+                <unmarshal>
+                    <bindy type="Csv" classType="com.json.csv.User" />
+                </unmarshal>
+                <log message="after CSV unmarshling ${body}" />
+                <marshal >
+                    <json library="Jackson"  useList="true" />
+                </marshal>
+                 <log message="after JSON unmarshling ${body}" />
+                <convertBodyTo type="String" />
+                <setHeader name="CamelFileName">
+                    <simple>input_${date:now:yyyy-MM-dd-HH-mm-ss}.json</simple>
+                </setHeader>
+                <to uri="file:work/output"/>
+               <log message="Successfully created json" />
+
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <setHeader name="Content-Type">
+                        <simple>application/json</simple>
+                    </setHeader>
+                    <setBody>
+                        <simple>{"isSuccess":false, "message":"${exception.message}", , "staceTrack": "exception"}</simple>
+                    </setBody>
+                </doCatch>
+            </doTry>
+        </route>
+        <!-- END CREATE CSV TO JSON -->
+
+    </camelContext>
+
+</beans>
