@@ -18,8 +18,7 @@
         -->
         <route>
             <from uri="timer:myTimer?period=5000&amp;fixedRate=true&amp;delay=10000&amp;repeatCount=5"/>
-            <pollEnrich>
-                <!-- Read file from local system -->
+            <pollEnrich><!-- Read file from local system -->
                 <simple>file:work/input</simple>
             </pollEnrich>
             <log message="Read file using Poll Enrich and body is : ${body}, FileName is : ${header.CamelFileName}" />
