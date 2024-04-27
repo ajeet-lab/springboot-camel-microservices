@@ -56,5 +56,5 @@ Here, we have defined the start time and stop time for the route policy.
     <to uri="file:work/output"/>
 </route>
 ```
-<b>autoStartup=false:</b> The route does not start automatically when we run the program.<br />
+<b>autoStartup=false:</b> The route will not start automatically when we run the program.<br />
 <b>routePolicyRef="startPolicy":</b> The route will start according to the route policy we defined earlier.
