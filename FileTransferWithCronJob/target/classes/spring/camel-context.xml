@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	https://www.springframework.org/schema/beans/spring-beans.xsd
+	http://camel.apache.org/schema/spring
+	https://camel.apache.org/schema/spring/camel-spring-2.23.3.xsd">
+    <!-- Here, we have defined the start time and stop time for the route policy. -->
+    <bean id="startPolicy" class="org.apache.camel.routepolicy.quartz.CronScheduledRoutePolicy">
+        <property name="routeStartTime" value="0 57 07 1/1 * ? *"/>
+        <property name="routeStopTime" value="0 58 07 1/1 * ? *"/>
+    </bean>
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+        <!--
+            fixedRate=true : This will ensure that the timer fires every 5 seconds, even if the previous exchange hasn't completed.
+            delay=2000     : This will start the timer after an initial delay of 2 seconds.
+            repeatCount=5  : This will stop the timer after it has fired 5 times.
+        -->
+        <route>
+            <from uri="timer:myTimer?period=5000&amp;fixedRate=true&amp;delay=10000&amp;repeatCount=5"/>
+            <pollEnrich>
+                <!-- Read file from local system -->
+                <simple>file:work/input</simple>
+            </pollEnrich>
+            <log message="Read file using Poll Enrich and body is : ${body}, FileName is : ${header.CamelFileName}" />
+        </route>
+        <!--
+            This component is similar to the Timer component, but it offers more functionality in terms of scheduling.
+            Also, this component uses JDK ScheduledExecutorService, whereas the timer uses a JDK Timer.
+        -->
+        <route>
+            <from uri="scheduler://foo?delay=60000"/>
+            <log message="Scheduler route using 'camel-scheduler-starter' depedency" />
+        </route>
+        <route>
+            <from uri="cron:tab?schedule=0/1+*+*+*+*+?"/>
+            <setBody>
+                <constant>Cron :: Create a cron job using 'camel-cron-starter'</constant>
+            </setBody>
+            <to uri="log:info"/>
+        </route>
+        <!--
+            autoStartup=false  : The route does not start automatically when we run the program.
+            routePolicyRef="startPolicy" : The route will start according to the route policy we defined earlier.
+        -->
+        <route id="fileProcessWithRoutePolicy" routePolicyRef="startPolicy" autoStartup="false">
+            <from uri="file:work/input"/>
+            <log message="Create a cron job using routePolicy ${date:now}" />
+            <to uri="file:work/output"/>
+        </route>
+    </camelContext>
+</beans>
