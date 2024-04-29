@@ -1,0 +1,14 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "firstname": "person.firstname",
+      "lastname": "person.lastname",
+      "email": "person.contact.email",
+      "phone": "person.contact.phone",
+      "age": "person.user.age",
+      "house": "person.address",
+      "pincode": "person.address"
+    }
+  }
+]

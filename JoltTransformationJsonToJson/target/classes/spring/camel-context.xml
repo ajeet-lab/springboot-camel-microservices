@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	https://www.springframework.org/schema/beans/spring-beans.xsd
+	http://camel.apache.org/schema/spring 
+	https://camel.apache.org/schema/spring/camel-spring-2.23.3.xsd">
+	
+	
+	<camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+		<route>
+			<from uri="jetty:http://localhost:9091/api/jolt/simplejsontojson1?httpMethodRestrict=POST&amp;enableCORS=true" />
+			<convertBodyTo type="String" />
+			<unmarshal><json library="Jackson" /></unmarshal>
+			<log message="after marshal : ${body}" />
+			<to uri="jolt:transform1.json"/>
+			<marshal><json library="Jackson"/></marshal>
+			<log message="body2 ${body}" />
+		</route>
+
+
+		<route>
+			<from uri="jetty:http://localhost:9091/api/jolt/simplejsontojson2?httpMethodRestrict=POST&amp;enableCORS=true" />
+			<convertBodyTo type="String" />
+			<unmarshal><json library="Jackson" /></unmarshal>
+			<log message="after marshal : ${body}" />
+			<to uri="jolt:transform1.json"/>
+			<marshal><json library="Jackson"/></marshal>
+			<log message="body2 ${body}" />
+		</route>
+	</camelContext>
+
+</beans>
