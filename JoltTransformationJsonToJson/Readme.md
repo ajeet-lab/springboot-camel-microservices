@@ -6,9 +6,9 @@
   "firstname": "Alice",
   "lastname": "Joe",
   "email": "Alice@gmail.com",
-  "phone": 9415652174,
-  "house": "406A, Gauspur",
-  "pincode": 233305,
+  "phone": 1234567891,
+  "house": "40621, Delhi",
+  "pincode": 110019,
   "age": 30
 }
 ```
@@ -32,11 +32,11 @@ In Jolt transformation, we assume a **Left Hand Side (LHS)** and a **Right Hand 
 ]
 
 ```
-Here, we've crafted a Jolt schema using the shift operation and **extract values from the request's identical keys**, then placing these values inside a **"person"** object. You can see the result below:
+Here, we've created a Jolt schema using the shift operation and **extract values from the request's identical keys**, then placing these values inside a **"person"** object. You can see the result below:
 * **Let's Understand below how it is work.**
-  * **"firstname":person.firstname** :- It means that the value of the "firstname" key is extracted and placed inside the "firstname" field within the "person" object in the output JSON. Result is - **{"person" : {"firstname" : "Alice"}}.**
+  * **"firstname":person.firstname** :- It means that the value of the **"firstname"** key is extracted and placed inside the **"firstname"** field within the **"person"** object in the output JSON. Result is - **{"person" : {"firstname" : "Alice"}}.**
   * **"email":person.contact.email** :- It means that the value of the **"email"** key is extracted and placed inside the **"email"** field within the **"contact"** object within the **"person"** object in the output JSON. Result is - **{"person" : "contact" : {"email" : "Alice@gmail.com"}}**
-  * **"house": "person.address","pincode": "person.address"** :- It means that the value of the **"address** and **pincode"** key is extracted and placed in **an array** inside the **"address"** field within the **"person"** object in the output JSON. Because we've placed both the values of **"address"** and **"pincode"** keys inside the **"address"** field within the "person" object. Result is - **{"person" : "address" : [ "406A, Gauspur", 233305 ]}**
+  * **"house": "person.address","pincode": "person.address"** :- It means that the value of the **"address** and **pincode"** key is extracted and placed in **an array** inside the **"address"** field within the **"person"** object in the output JSON. Because we've placed both the values of **"address"** and **"pincode"** keys inside the **"address"** field within the "person" object. Result is - **{"person" : "address" : [ "40621, Delhi", 110019 ]}**
 
 #### Result of Request -1 
 ```
@@ -46,12 +46,12 @@ Here, we've crafted a Jolt schema using the shift operation and **extract values
     "lastname" : "Joe",
     "contact" : {
       "email" : "Alice@gmail.com",
-      "phone" : 9415652174
+      "phone" : 1234567891
     },
     "user" : {
       "age" : 30
     },
-    "address" : [ "406A, Gauspur", 233305 ]
+    "address" : [ "40621, Delhi", 110019 ]
   }
 }
 ```
