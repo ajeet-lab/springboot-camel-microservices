@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://camel.apache.org/schema/spring https://camel.apache.org/schema/spring/camel-spring-2.23.3.xsd">
+
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+
+        <!-- START QUEUE  -->
+        <route id="senderQueue">
+            <from uri="jetty:http://localhost:9002/api/v1/amq/queue?httpMethodRestrict=POST" />           
+            <unmarshal>
+                <json library="Jackson" />
+            </unmarshal>     
+            <setExchangePattern pattern="InOnly" />
+            <to uri="activemq:myqueue" />
+            <log message="senderQueue :: Push into myqueue successfully.." />
+            <setBody>
+                <simple>{"message": "Successfully"}</simple>
+            </setBody>
+        </route>
+
+        <route id="receiverQueue">
+            <from uri="activemq:myqueue" />
+            <log message="receiverQueue :: Received data from myqueue --> ${body}" />
+        </route>
+        <!-- END QUEUE  -->
+
+
+         <!-- START SELECTOR QUEUE  -->
+        <route id="selectorSenderQueue">
+            <from uri="jetty:http://localhost:9002/api/v1/amq/selectorqueue?httpMethodRestrict=POST" />           
+            <unmarshal>
+                <json library="Jackson" />
+            </unmarshal>  
+            <setHeader name="status">
+                <simple>${body['status']}</simple>
+            </setHeader>   
+            <log message="selectorSenderQueue :: Header status is ${header.status}" />       
+            <setExchangePattern pattern="InOnly" />
+            <to uri="activemq:selectorqueue" />
+            <log message="selectorSenderQueue :: Push into selectorqueue successfully.." />
+            <setBody>
+                <simple>{"message": "Successfully"}</simple>
+            </setBody>
+        </route>
+
+        <!-- Read selected message from queue using selector option -->
+        <route id="receiverSelectorMessageFromAMQ">
+            <from uri="activemq:selectorqueue?selector=status='Pending'" />
+            <log message="receiverSelectorMessageFromAMQ :: Received data from selectorqueue --> ${body}" />
+        </route>
+        <!-- END SELECTOR QUEUE  -->
+
+        <!-- START TOPIC QUEUE  -->
+        <route id="senderTopicQueue">
+            <from uri="jetty:http://localhost:9002/api/v1/amq/topicqueue?httpMethodRestrict=POST" />
+            <unmarshal>
+                <json library="Jackson" />
+            </unmarshal>
+            <setExchangePattern pattern="InOnly" />
+            <to uri="activemq:topic:mytopicqueque" />
+            <log message="senderTopicQueue :: Push into mytopicqueue successfully.." />
+            <setBody>
+                <simple>{"message": "Successfully"}</simple>
+            </setBody>
+        </route>
+
+        <route id="recieverTopic1">
+            <from uri="activemq:topic:mytopicqueque" />
+            <log message="recieverTopic1 :: Received data from mytopicqueue --> ${body}" />
+        </route>
+
+        <route id="recieverTopic2">
+            <from uri="activemq:topic:mytopicqueque" />
+            <log message="recieverTopic2 :: Received data from mytopicqueue --> ${body}" />
+        </route>
+    <!-- END TOPIC QUEUE  -->
+
+        
+
+
+    </camelContext>
+
+</beans>

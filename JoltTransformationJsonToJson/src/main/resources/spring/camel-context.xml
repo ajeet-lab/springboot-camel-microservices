@@ -24,7 +24,7 @@
 			<convertBodyTo type="String" />
 			<unmarshal><json library="Jackson" /></unmarshal>
 			<log message="after marshal : ${body}" />
-			<to uri="jolt:transform1.json"/>
+			<to uri="jolt:transform2.json"/>
 			<marshal><json library="Jackson"/></marshal>
 			<log message="body2 ${body}" />
 		</route>
