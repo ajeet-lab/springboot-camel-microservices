@@ -1,0 +1,46 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "*": {
+        "last name": "[&1].Lastname__c",
+        "loan stage name": "[&1].Loan_Stage_Name__c",
+        "email id": "[&1].Email_Id__c",
+        "customer number": "[&1].Customer_Number__c",
+        "date of birth": "[&1].Date_Of_Birth__c",
+        "current processing stage": "[&1].Current_Processing_Stage__c",
+        "scheme code": "[&1].Scheme__c",
+        "occupation typ": "[&1].Occupation__c",
+        "tenure": "[&1].Tenure__c",
+        "currency": "[&1].Currency__c",
+        "rate": "[&1].Rate__c",
+        "payment frequency": "[&1].Payment_Frequency__c",
+        "applicant type": "[&1].Applicant_Type__c",
+        "loan purpose": "[&1].Loan_Purpose__c",
+        "product": "[&1].Product__c",
+        "emi": "[&1].EMI__c",
+        "neo cif id": "[&1].CIF_Number__c",
+        "product type": "[&1].Product_Type__c",
+        "loan amount": "[&1].Loan_Amount__c",
+        "mobile no": "[&1].Mobile_Number__c",
+        "loan branch code": "[&1].Branch_Code__c",
+        "disbursement amount": "[&1].Disbursement_Amount__c",
+        "sales officer code": "[&1].Sales_Officer_Code__c",
+        "pan_number": "[&1].Pan_Number__c",
+        "sanction date": "[&1].Sanction_Date__c",
+        "creation_time_stamp": "[&1].Application_Creation_Timestamp__c",
+        "address": "[&1].Address__c",
+        "dsa code": "[&1].DSA_Code__c",
+        "reporting supervisor name": "[&1].RSM__c",
+        "first name": "[&1].Firstname__c",
+        "under writer result": "[&1].Under_Writer_Result__c",
+        "sanction amount": "[&1].Sanction_Amount__c",
+        "channel": "[&1].Channel__c",
+        "DST": "[&1].DST__c",
+        "decision reason": "[&1].Decision_Reason__c",
+        "sourcing rm name": "[&1].SRM__c",
+        "webtop": "[&1].Webtop__c"
+      }
+    }
+  }
+]
