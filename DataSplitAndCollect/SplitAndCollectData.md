@@ -2,7 +2,7 @@
 **Code Ref url:** <a href="https://github.com/ajeet-lab/springboot-camel-microservices/tree/master/DataSplitAndCollect" target="_blank" />Click Here</a>
 
 # Split data of list of String
-#### Post: http://localhost:8301/api/partition/listofmap
+#### Post: http://localhost:8301/api/partition/listofstring
 **Payload:**
 ```
 {
