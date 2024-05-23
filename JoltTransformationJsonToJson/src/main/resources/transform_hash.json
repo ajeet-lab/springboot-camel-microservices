@@ -1,0 +1,11 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "product": {
+        "*": "product.&",
+        "#DEFAULT_CATEGORY": "product.category"
+      }
+    }
+  }
+]

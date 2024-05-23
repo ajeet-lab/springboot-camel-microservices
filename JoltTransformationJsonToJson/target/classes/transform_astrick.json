@@ -1,0 +1,14 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "rating": {
+        "*": {
+          "value": "items.v1.&",
+          "three": "items.v1.&(1)",
+          "four": "items.v1_&(1)"
+        }
+      }
+    }
+  }
+]

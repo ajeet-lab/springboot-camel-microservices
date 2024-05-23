@@ -8,6 +8,19 @@
 	
 	
 	<camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+
+		<route>
+			<from uri="file:work/input?fileName=input.json&amp;noop=true" />
+			<log message="Data received ${body}" />
+			<unmarshal><json library="Jackson" /></unmarshal>
+			<!--<to uri="jolt:transform_amparsand.json" />-->
+			<!--<to uri="jolt:transform_astrick.json" />-->
+			<!--<to uri="jolt:transform_doller.json" />-->
+			<to uri="jolt:transform_hash.json" />
+			<marshal><json library="Jackson" /></marshal>
+			<log message="After transform data is : ${body}" />
+		</route>
+
 		<route>
 			<from uri="jetty:http://localhost:9091/api/jolt/simplejsontojson1?httpMethodRestrict=POST&amp;enableCORS=true" />
 			<convertBodyTo type="String" />
