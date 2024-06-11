@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cxf="http://camel.apache.org/schema/cxf"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	https://www.springframework.org/schema/beans/spring-beans.xsd
+	http://camel.apache.org/schema/spring
+	https://camel.apache.org/schema/spring/camel-spring-2.23.3.xsd
+	http://camel.apache.org/schema/cxf
+	http://camel.apache.org/schema/cxf/camel-cxf-2.8.3.xsd">
+
+
+    <!-- WSDL configuration using cxf:cxfEndpoint -->
+    <cxf:cxfEndpoint id="calculatorEndpoint"
+                     address="http://www.dneonline.com/calculator.asmx"
+                     wsdlURL="http://www.dneonline.com/calculator.asmx?wsdl"
+                     serviceClass="org.tempuri.CalculatorSoap"
+                     xmlns:s="http://tempuri.org/"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     endpointName="CalculatorSoap">
+        <cxf:properties>
+            <entry key="dataFormat" value="PAYLOAD" />
+        </cxf:properties>
+    </cxf:cxfEndpoint>
+
+    <!-- WSDL configuration using Bean -->
+    <!--<bean id="calculatorEndpoint" class="org.apache.camel.component.cxf.CxfEndpoint">
+        <property name="address" value="http://www.dneonline.com/calculator.asmx"/>
+        <property name="wsdlURL" value="http://www.dneonline.com/calculator.asmx?wsdl"/>
+        <property name="serviceClass" value="org.tempuri.CalculatorSoap"/>
+        <property name="dataFormat" value="PAYLOAD"/>
+    </bean>-->
+
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+        <route id="SoapCaculator" streamCache="true">
+            <from uri="jetty:http://localhost:4000/api/v1/{id}?httpMethodRestrict=POST"/>
+            <doTry>
+                <removeHeaders pattern="*" excludePattern="Content-Type|CamelHttpUri"/>
+                <unmarshal>
+                    <json library="Jackson"/>
+                </unmarshal>
+                <log message="SoapCaculator001 :: After unmarshalling :: ${body}"/>
+                <bean ref="Utills" method="checkEmptyOrNullValue"/>
+                <bean ref="Utills" method="setOperationNameAndSpace"/>
+                <to uri="velocity:Add.vm"/>
+                <log message="After vm : ${body}"/>
+                <log message="SoapCaculator002 :: Soap request is : ${body}"/>
+                <to uri="cxf:bean:calculatorEndpoint"/>
+                <unmarshal>
+                    <jacksonxml/>
+                </unmarshal>
+                <marshal>
+                    <json library="Jackson"/>
+                </marshal>
+                <log message="SoapCaculator003 :: Result is : ${body}"/>
+                <doCatch>
+                    <exception>java.lang.IllegalArgumentException</exception>
+                    <log message="SoapCaculator004 :: Exception -> ${exception.message}"/>
+                    <setHeader name="Content-Type">
+                        <simple>application/json</simple>
+                    </setHeader>
+                    <setHeader name="CamelHttpResponseCode ">
+                        <simple>400</simple>
+                    </setHeader>
+                    <setBody>
+                        <simple>{"message": "${exception.message}"}</simple>
+                    </setBody>
+                </doCatch>
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <log message="SoapCaculator005 :: Exception -> ${exception.message}"/>
+                    <setHeader name="Content-Type">
+                        <simple>application/json</simple>
+                    </setHeader>
+                    <setHeader name="CamelHttpResponseCode ">
+                        <simple>400</simple>
+                    </setHeader>
+                    <setBody>
+                        <simple>{"message": "${exception.message}"}</simple>
+                    </setBody>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+</beans>
