@@ -5,41 +5,25 @@
 	https://www.springframework.org/schema/beans/spring-beans.xsd
 	http://camel.apache.org/schema/spring
 	https://camel.apache.org/schema/spring/camel-spring-2.23.3.xsd">
+	
+	
 
     <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
         <route id="splitListOfString">
-            <from uri="jetty:http://localhost:8301/api/partition/listofstring??httpMethodRestrict=POST&amp;enableCORS=true" />
+			
+   
+          <from uri="{{cronJob}}" />
             <removeHeaders pattern="*" excludePattern="Content-Type" />
-            <unmarshal><json library="Jackson" /></unmarshal>
+            <to uri="sql:{{fechdata}}" />
+            <log message="splitListOfString :: partitionSize ${body.size()}" />
 
-            <setHeader name="partitionSize">
-                <simple>${body['partitionSize']}</simple>
-            </setHeader>
-            <log message="splitListOfString :: partitionSize ${body['partitionSize']}" />
-            <setBody>
-                <simple>${body['datas']}</simple>
-            </setBody>
-            <bean ref="SplitAndCollectData"  method="splitListOfString"/>
+            <bean ref="SplitAndCollectData"  method="splitListOfMap"/>
             <log message="splitListOfString001 :: Partition size -> ${body.size()}" />
             <marshal><json library="Jackson" /></marshal>
+            <setBody><simple>{}</simple></setBody>
         </route>
 
 
-        <route id="splitListOfMap">
-            <from uri="jetty:http://localhost:8301/api/partition/listofmap??httpMethodRestrict=POST&amp;enableCORS=true" />
-            <removeHeaders pattern="*" excludePattern="Content-Type" />
-            <unmarshal><json library="Jackson" /></unmarshal>
-            <setHeader name="partitionSize">
-                <simple>${body['partitionSize']}</simple>
-            </setHeader>
-            <log message="splitListOfMap :: partitionSize ${body['partitionSize']}" />
-            <setBody>
-                <simple>${body['datas']}</simple>
-            </setBody>
-            <bean ref="SplitAndCollectData"  method="splitListOfMap"/>
-            <log message="splitListOfMap001 :: Partition size -> ${body.size()}" />
-            <marshal><json library="Jackson" /></marshal>
-        </route>
     </camelContext>
 
 </beans>
