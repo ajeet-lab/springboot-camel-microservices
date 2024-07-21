@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	
+	<routeContext id="createRouteContext" xmlns="http://camel.apache.org/schema/spring">
+		<route id="createImpl">
+			<from uri="direct:create" />
+			<log message="Hit recieved at ${date:now}, and body --> ${body} " />
+			<unmarshal id="AuthenticateUdyamRegistration_marshal123433">
+				<custom ref="jacksonJson" />
+			</unmarshal>
+			<marshal>
+				<custom ref="jack" />
+			</marshal>
+			<to id="AuthenticateUdyamRegistration_newProd_to123" uri="xslt:./xslt/AuthenticateUdyamRegistrationSuccessResponse.xsl" />
+			<unmarshal>
+				<custom ref="jack" />
+			</unmarshal>
+			<marshal id="AuthenticateUdyamRegistration_marshal1234334545">
+				<custom ref="jacksonJson" />
+			</marshal>
+			<convertBodyTo id="AuthenticateUdyamRegistration_new_convertBodyTo14545" type="java.lang.String" />
+			<process id="AuthenticateUdyamRegistration_new_process134" ref="ResponseProcessor" />
+			<bean id="AuthenticateUdyamRegistration_new_bean134" method="processForAuthenticateUdyamRegistration" ref="ResponseProcessor" />
+			<removeHeader name="org.restlet.http.headers" id="AuthenticateUdyamRegistration_removeHeader5" />
+		</route>
+	</routeContext>
+
+</beans>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+	<import resource="Create.xml" />
+	<camelContext id="springBootCamelWithSwaggar" xmlns="http://camel.apache.org/schema/spring">
+		<routeContextRef ref="createRouteContext" />
+		
+		<dataFormats>
+			<jacksonXml id="jack" />
+			<json id="jacksonJson" library="Jackson" />
+		</dataFormats>
+	
+	
+		<restConfiguration apiContextPath="/api-doc" component="jetty" port="9092" inlineRoutes="true" enableCORS="true">
+				<dataFormatProperty key="prettyPrint" value="true" />
+				<apiProperty key="api.title" value="OCP Services API Documentation" />
+				<apiProperty key="api.version" value="1.0.0" />
+				<apiProperty key="cors" value="true" />
+			</restConfiguration>
+			
+			<rest path="/api/v1">
+			
+			<get id="healthcheck-get" produces="text/plain" path="/healthcheck">
+				<description>Health Check</description>
+				<param name="user_key" type="header" />
+				<responseMessage message="Health check Success" />
+
+				<to uri="direct:healthcheck" />
+			</get>
+			
+			<get path="/healthCheckReadiness">
+				<responseMessage message="Its Up and Running" />
+				<to uri="mock:update" />
+			</get>
+
+			<get path="/healthCheckLiveness">
+				<responseMessage message="Its Up and Running" />
+				<to uri="mock:update" />
+			</get>
+			
+			
+				<post consumes="application/json" path="/create" produces="application/json" type="com.tcl.entities.Employee" outType="com.tcl.entities.Employee">
+					<param name="Authorization" type="header" />
+					<param name="ConversationID" type="header" />
+					<param name="SourceName" type="header" />
+					<responseMessage code="200" message="HTTP OK" responseModel="com.tcl.entities.Employee" />
+					<responseMessage code="500" message="Server Error" />
+					<to uri="direct:create" />
+				</post>
+		</rest>
+		
+		
+		<route id="swaggerroute">
+			<from id="swaggerroute_health" uri="direct:healthcheck" />
+			<log message="In swagger healthcheck" />
+		</route>
+		
+		<!-- Header Validation -->
+		<route id="HeaderValidationRoute">
+			<from id="_processHeader" uri="direct:processHeader" />
+			<choice id="headerProcessing2">
+				<when id="Missingheader2">
+					<simple id="_validateHeader2">${in.header.SourceName} == null || ${in.header.SourceName} == "" || ${in.header.ConversationID} == null || ${in.header.ConversationID} == "" || ${in.header.Authorization} == null ||
+						${in.header.Authorization} == ""</simple>
+					<setHeader name="MissingHeader" id="_MissingHeader2">
+						<simple>MissingHeader</simple>
+					</setHeader>
+					<process id="ErrorAck" ref="ErrorAckProcessor" />
+					<marshal id="MarshalErrorResponse">
+						<json library="Jackson" prettyPrint="true" />
+					</marshal>
+					<convertBodyTo id="convertToString" type="java.lang.String" />
+				</when>
+			</choice>
+		</route>
+
+		
+			
+		
+	</camelContext>
+
+</beans>
