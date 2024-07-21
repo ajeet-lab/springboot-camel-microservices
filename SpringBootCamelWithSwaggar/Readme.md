@@ -3,4 +3,4 @@
 
 
 **EX.**<br />
-![Example Image](swagger.png)
+![Example Image](Swagger.png)
