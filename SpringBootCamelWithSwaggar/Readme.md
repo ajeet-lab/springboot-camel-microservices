@@ -3,4 +3,8 @@
 
 
 **EX.**<br />
+<<<<<<< HEAD
 ![Example Image](Swagger.png)
+=======
+![Example Image](Swagger.png)
+>>>>>>> 11847d721bbad65d841de7bcdab2bae64bf4fe0b
