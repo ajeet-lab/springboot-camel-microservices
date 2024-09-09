@@ -1,0 +1,14 @@
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<?xml-stylesheet type="text/xsl" href="Student.xsl"?>
+<class>
+    <student>
+        <firstName>Ajeet</firstName>
+        <secondName>Kushwaha</secondName>
+        <age>30</age>
+    </student>
+    <student>
+        <firstName>Ashish</firstName>
+        <secondName>Maurya</secondName>
+        <age>40</age>
+    </student>
+</class>
