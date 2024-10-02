@@ -78,7 +78,7 @@ You can stop the consumer client with Ctrl-C at any time.
 
 
 # KAFKA INTEGRATION WITH SPRINGBOOT-CAMEL PROJECT
-**GIT Code URL:** <a href="https://github.com/ajeet-lab/springboot-microservices/tree/master/KafkaIntegration" target="_blank">Click Here for Implementation code</a>
+**GIT Code URL:** <a href="https://github.com/ajeet-lab/springboot-camel-microservices/tree/master/KafkaIntegration" target="_blank">Click Here for Implementation code</a>
 
 To implement **all Kafka options** in a **Spring Boot-Camel project**, you need to configure multiple options such as Kafka producers, consumers, serialization, deserialization, topics, error handling, and Kafka-specific settings like partitions, offsets, retries, etc.
 
